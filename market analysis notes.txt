@@ -1,0 +1,43 @@
+2018-12-27
+
+    find relevant questions
+    
+2018-12-28
+    https://www.energy.ca.gov/appliances/rass/index.html
+    https://www.energy.ca.gov/2010publications/CEC-200-2010-004/CEC-200-2010-004-V1.PDF
+
+    The RASS data were delivered to the Energy Commission and participating utilities on CD.   
+      
+    Data Delivery
+        Cleaned survey and CDA data files
+
+    The variables contained in the Cleaned RASS Survey and CDA database are listed in the Appendices Volume, Appendix M.
+
+
+    Database Preparation
+        
+2018-12-31
+    Got the 2009 RECS survey because it sampled enough to indicate data from California 
+    
+    RECS 2015 has notes on 
+    Using final weights (NWEIGHT) and replicate weights to calculate estimates and RSEs
+
+2019-01-04
+see /home/jiml/HotWaterResearch/projects/HPWH/California HPWH/presentations/RASS/
+for some queries when Eddie was preparing his presentation for the workshop.
+
+2019-01-11
+    see https://schoolofdata.org/extracting-data-from-pdfs/
+
+    Using the command line tabula extractor tool
+    https://github.com/tabulapdf/tabula-extractor/wiki/Using-the-command-line-tabula-extractor-tool
+
+    installed jq, https://stedolan.github.io/jq/download/
+    
+    uses poppler-utils, apparently already have that one
+    poppler-utils is already the newest version (0.62.0-2ubuntu2.5).
+    
+    tabula 1.0.2
+    https://github.com/tabulapdf/tabula-java/releases/tag/v1.0.2
+
+    pdftocsv.sh didn't work, but looks promising
