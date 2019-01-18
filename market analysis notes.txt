@@ -49,4 +49,21 @@ for some queries when Eddie was preparing his presentation for the workshop.
     
     for now load ../2009 RASS/Survdata.csv into .Rdata file
     
+    looking at wt and the WH fuel type
+    what are 99 & 97 responses?
+    
+    2009 CALIFORNIA RESIDENTIAL APPLIANCE SATURATION STUDY Volume 1: Methodology
+    CHAPTER 4: Data Cleaning And Processing
+
+    99, meaning not applicable
+     truly missing responses were coded as 97
+     
+    Cleaning Water Heating Survey Responses
+     
+    See Table 4-11: Water Heating Fuel Data Cleaning
+    check in number of samples matches in DT_RASS
+    
+    DT_RASS has more,
+    check on SEASOCC
+    
     
