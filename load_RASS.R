@@ -6,16 +6,18 @@
 source("setup.R")
 
 # set up paths to working directories
-wd_AHRI_dirs <- "/home/jiml/HotWaterResearch/projects/CECHWT24/2019 ACM tankless/AHRI/2018-11-22"
+wd_RASS <- "../2009 RASS/"
 
-# find the xlsx files there
-l_fn <-
-  list.files(path = wd_AHRI_dirs, pattern = ".*_MaxGPM_.*.xlsx", full.names = TRUE)
-
-# read the files
-DT_AHRI_dir <-
-  data.table(ldply(l_fn, read_excel, .progress = "text"))
+# read the Survdata.csv
+DT_RASS <-
+  fread(file = paste0(wd_RASS,"Survdata.csv"))
 
 # see what's there
-names(DT_AHRI_dir)
-nrow(DT_AHRI_dir)
+length(names(DT_RASS))
+# [1] 564
+nrow(DT_RASS)
+# [1] 25721
+
+# save as an .Rdata file
+save(DT_RASS, file = "data/DT_RASS.Rdata")
+

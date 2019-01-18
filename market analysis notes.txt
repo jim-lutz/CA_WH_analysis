@@ -41,3 +41,12 @@ for some queries when Eddie was preparing his presentation for the workshop.
     https://github.com/tabulapdf/tabula-java/releases/tag/v1.0.2
 
     pdftocsv.sh didn't work, but looks promising
+    
+2019-01-18
+    don't bother with tabula now. I'd already extracted the RASS fields.
+    ../2009 RASS/Variables.xls    
+    see also ../2009 RASS/2009_RASS_survey_with_variables.pdf
+    
+    for now load ../2009 RASS/Survdata.csv into .Rdata file
+    
+    
