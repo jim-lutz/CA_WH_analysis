@@ -67,5 +67,10 @@ for some queries when Eddie was preparing his presentation for the workshop.
     check on SEASOCC
 
 2019-02-01
-    loaded 2009RECS and weights, extracted CA data and saved in .Rdata file    
+    loaded 2009RECS and weights, extracted CA data and saved in .Rdata file
+    
+    slab & attached garage by date?
+    started for pie chart by type of housing unit,
+    distracted by labeling TYPEHUQ
+        
     
