@@ -65,5 +65,7 @@ for some queries when Eddie was preparing his presentation for the workshop.
     
     DT_RASS has more,
     check on SEASOCC
-    
+
+2019-02-01
+    loaded 2009RECS and weights, extracted CA data and saved in .Rdata file    
     
