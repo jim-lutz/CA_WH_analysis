@@ -16,24 +16,24 @@ load(file = paste0('data/', "DT_RECS_CA.Rdata"))
 # TYPEHUQ	Type of housing unit	
 # 1 2 3 4 5	
 # Mobile Home Single-Family Detached Single-Family Attached Apartment in Building with 2 - 4 Units Apartment in Building with 5+ Units
+DT_RECS_CA[ , 
+            F_TYPEHUQ:= factor(x=TYPEHUQ,
+                               levels = 1:5,
+                               labels = c('Mobile Home', 
+                                           'Single-Family Detached', 
+                                           'Single-Family Attached', 
+                                           'Apartment in Building with 2 - 4 Units', 
+                                           'Apartment in Building with 5+ Units')
+                                    )
+            ]
+
+summary(DT_RECS_CA$F_TYPEHUQ)
 
 # chart number of housing units by type of building
 ggplot(data = DT_RECS_CA) +
-  geom_bar(aes(TYPEHUQ, weight=NWEIGHT))
-# Error in FUN(X[[i]], ...) : object 'NWEIGHT' not found
-  
-# what's with the weight?  
-grep("WEIGHT|weight", names(DT_RECS_CA), value = TRUE)
+  geom_bar(aes(x="", y=TYPEHUQ, weight=NWEIGHT.y/sum(NWEIGHT.y))) + 
+  coord_polar(theta = "x")
 
-DT_RECS_CA[NWEIGHT.x != NWEIGHT.y, list(NWEIGHT.x, NWEIGHT.y)]
-# NWEIGHT.y is 3 decimals, NWEIGHT.x is 2 decimals?
-
-ggplot(data = DT_RECS_CA,
-       aes(x=NWEIGHT.x, y=NWEIGHT.y)) + geom_point()
-
-with(DT_RECS_CA,
-     summary.lm(lm(NWEIGHT.y ~ NWEIGHT.x))
-     )
 
 
 
