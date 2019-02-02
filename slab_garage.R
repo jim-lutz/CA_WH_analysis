@@ -64,13 +64,24 @@ DT_TYPEHUQ[str_detect(F_TYPEHUQ,"Apartment"),
 # probably close enough
 
 # chart number of housing units by type of building
-ggplot(data = DT_RECS_CA) +
-  geom_bar(aes(x="", y=NWEIGHT.y/sum(NWEIGHT.y), fill=F_TYPEHUQ)) + 
-  coord_polar(theta = "x")
+ggplot(data = DT_TYPEHUQ,
+       aes(x="", y=fTYPEHUQ, fill=F_TYPEHUQ)) +
+  geom_bar(stat="identity", width=1) + 
+  coord_polar(theta = "y", start=0) + 
+  geom_text(aes(label = paste0(round(fTYPEHUQ*100), "%")), 
+            position = position_stack(vjust = 0.5)) + 
+  scale_fill_manual(values=c("green","blue","blue","red","purple")) + 
+  labs(x = NULL, y = NULL, fill = NULL, 
+       title = "California Housing Stock by Type",
+       subtitle = "from 2009 RASS") + 
+  theme_classic() + 
+  theme(axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
 
 
-
-
-#  https://www.r-bloggers.com/pie-charts-in-ggplot2/
+                                                                                                              
   
   
