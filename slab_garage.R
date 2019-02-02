@@ -27,11 +27,20 @@ DT_RECS_CA[ ,
                                     )
             ]
 
-summary(DT_RECS_CA$F_TYPEHUQ)
+# make a simple data.table to plot
+DT_TYPEHUQ <-
+  DT_RECS_CA[ , list(fTYPEHUQ = sum(NWEIGHT.y)/sum(DT_RECS_CA$NWEIGHT.y)),
+            by=c("TYPEHUQ","F_TYPEHUQ")][order(TYPEHUQ)]
+#    TYPEHUQ                              F_TYPEHUQ   fTYPEHUQ
+# 1:       1                            Mobile Home 0.03226220
+# 2:       2                 Single-Family Detached 0.57783682
+# 3:       3                 Single-Family Attached 0.07013561
+# 4:       4 Apartment in Building with 2 - 4 Units 0.08466972
+# 5:       5    Apartment in Building with 5+ Units 0.23509564
 
 # chart number of housing units by type of building
 ggplot(data = DT_RECS_CA) +
-  geom_bar(aes(x="", y=TYPEHUQ, weight=NWEIGHT.y/sum(NWEIGHT.y))) + 
+  geom_bar(aes(x="", y=NWEIGHT.y/sum(NWEIGHT.y), fill=F_TYPEHUQ)) + 
   coord_polar(theta = "x")
 
 
