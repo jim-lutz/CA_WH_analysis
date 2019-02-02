@@ -1,10 +1,16 @@
-# slab_garage.R
-# script to explore CA RECS 2009 data for occurences of slab foundations 
-# and attached garages
+# house_type.R
+# script to get type of housing unit from CA RECS 2009 data
 # started by Jim Lutz "Fri Feb  1 07:46:23 2019"
 
 # set packages & etc
 source("setup.R")
+
+# setup  working directories
+# use this for scripts 
+wd <- getwd()
+wd_data    <- paste(wd,"/data/",sep="")      # use this for interim data files
+wd_charts  <-paste(wd,"/charts/",sep="")     # use this for charts, ggsave puts in /
+
 
 # load data
 load(file = paste0('data/', "DT_RECS_CA.Rdata"))
@@ -18,12 +24,12 @@ load(file = paste0('data/', "DT_RECS_CA.Rdata"))
 # Mobile Home Single-Family Detached Single-Family Attached Apartment in Building with 2 - 4 Units Apartment in Building with 5+ Units
 DT_RECS_CA[ , 
             F_TYPEHUQ:= factor(x=TYPEHUQ,
-                               levels = 1:5,
-                               labels = c('Mobile Home', 
-                                           'Single-Family Detached', 
+                               levels = c(2,3,4,5,1),
+                               labels = c('Single-Family Detached', 
                                            'Single-Family Attached', 
                                            'Apartment in Building with 2 - 4 Units', 
-                                           'Apartment in Building with 5+ Units')
+                                           'Apartment in Building with 5+ Units',
+                                          'Mobile Home')
                                     )
             ]
 
@@ -66,15 +72,17 @@ DT_TYPEHUQ[str_detect(F_TYPEHUQ,"Apartment"),
 # chart number of housing units by type of building
 # https://www.r-bloggers.com/how-to-make-a-pie-chart-in-r/
 ggplot(data = DT_TYPEHUQ,
-       aes(x="", y=fTYPEHUQ, fill=F_TYPEHUQ)) +
-  geom_bar(stat="identity", width=1) + 
-  coord_polar(theta = "y", start=0) + 
-  geom_text(aes(label = paste0(round(fTYPEHUQ*100), "%")), 
+       aes(x="", y=fTYPEHUQ, fill=F_TYPEHUQ,)) +
+  geom_bar(stat="identity", width=1, color="black") + 
+  coord_polar(theta = "y", start=0, direction = -1) + 
+  geom_text(aes(label = paste0(round(fTYPEHUQ*100), 
+                               "%\n", round(nTYPEHUQ/1000000,1),"M")), 
             position = position_stack(vjust = 0.5)) + 
-  scale_fill_manual(values=c("green","blue","blue","red","purple")) + 
+  scale_fill_manual(values=c("deepskyblue4","deepskyblue4",
+                             "lightskyblue","lightskyblue","chartreuse4")) + 
   labs(x = NULL, y = NULL, fill = NULL, 
        title = "California Housing Stock by Type",
-       subtitle = "from 2009 RASS") + 
+       subtitle = "from 2009 RECS") + 
   theme_classic() + 
   theme(axis.line = element_blank(),
         axis.text = element_blank(),
@@ -82,6 +90,15 @@ ggplot(data = DT_TYPEHUQ,
         plot.title = element_text(hjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5))
 
+# get date to include in file name
+d <- format(Sys.time(), "%F")
+
+# save chart
+ggsave(filename = paste0("type_of_housing","_",d,".png"), 
+       path=wd_charts, scale = 1.5) 
+
+# save data
+fwrite(DT_TYPEHUQ, file = paste0(wd_data,"type_of_housing","_",d,"csv") )
 
                                                                                                               
   

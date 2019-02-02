@@ -73,4 +73,7 @@ for some queries when Eddie was preparing his presentation for the workshop.
     started for pie chart by type of housing unit,
     distracted by labeling TYPEHUQ
         
+2019-02-02
+    make sure matches HCD report    
     
+    see house_type.R, HCD data from AHS data
