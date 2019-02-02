@@ -64,6 +64,7 @@ DT_TYPEHUQ[str_detect(F_TYPEHUQ,"Apartment"),
 # probably close enough
 
 # chart number of housing units by type of building
+# https://www.r-bloggers.com/how-to-make-a-pie-chart-in-r/
 ggplot(data = DT_TYPEHUQ,
        aes(x="", y=fTYPEHUQ, fill=F_TYPEHUQ)) +
   geom_bar(stat="identity", width=1) + 
