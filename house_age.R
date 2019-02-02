@@ -17,24 +17,34 @@ load(file = paste0('data/', "DT_RECS_CA.Rdata"))
 # see ../2009 RECS/recs2009_public_codebook.xlsx, ../2009 RECS/public_layout.csv and 
 # ../2009 RECS/using-microdata-022613.pdf for information about data
 
-# factors for 
-# TYPEHUQ	Type of housing unit	
-# 1 2 3 4 5	
-# Mobile Home Single-Family Detached Single-Family Attached Apartment in Building with 2 - 4 Units Apartment in Building with 5+ Units
-DT_RECS_CA[ , 
-            F_TYPEHUQ:= factor(x=TYPEHUQ,
-                               levels = c(2,3,4,5,1),
-                               labels = c('Single-Family Detached', 
+# factors for TYPEHUQ	Type of housing unit	
+DT_RECS_CA[ ,F_TYPEHUQ:= factor(x=TYPEHUQ,
+                                levels = c(2,3,4,5,1), # Single-Family first
+                                labels = c('Single-Family Detached', 
                                           'Single-Family Attached', 
                                           'Apartment in Building with 2 - 4 Units', 
                                           'Apartment in Building with 5+ Units',
                                           'Mobile Home')
-            )
+                               )
+            ]
+
+# factors for YEARMADERANGE	Year range when housing unit was built
+DT_RECS_CA[ , 
+            F_YEARMADERANGE:= factor(x=YEARMADERANGE,
+                                     levels = c('1', '2', '3', '4', '5', '6', '7', '8'),
+                                     labels = c('Before 1950', '1950 to 1959', '1960 to 1969',
+                                                '1970 to 1979', '1980 to 1989', '1990 to 1999',
+                                                '2000 to 2004', '2005 to 2009')
+                                     )
             ]
 
 # make a simple data.table to plot
-DT_RECS_CA[ , list(fTYPEHUQ = sum(NWEIGHT.y)/sum(DT_RECS_CA$NWEIGHT.y),
-                   nTYPEHUQ = sum(NWEIGHT.y)),
-            by=c("TYPEHUQ","F_TYPEHUQ")][order(TYPEHUQ)]
+DT_HOUSE_AGE <-
+  DT_RECS_CA[ , list(fTYPEHUQ = sum(NWEIGHT.y)/sum(DT_RECS_CA$NWEIGHT.y),
+                     nTYPEHUQ = sum(NWEIGHT.y),
+                     TYPEHUQ  = unique(TYPEHUQ),
+                     YEARMADERANGE = unique(YEARMADERANGE)
+                     ),
+              by=c("F_TYPEHUQ","F_YEARMADERANGE")][order(YEARMADERANGE,TYPEHUQ)]
 
 
