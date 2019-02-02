@@ -29,14 +29,39 @@ DT_RECS_CA[ ,
 
 # make a simple data.table to plot
 DT_TYPEHUQ <-
-  DT_RECS_CA[ , list(fTYPEHUQ = sum(NWEIGHT.y)/sum(DT_RECS_CA$NWEIGHT.y)),
+  DT_RECS_CA[ , list(fTYPEHUQ = sum(NWEIGHT.y)/sum(DT_RECS_CA$NWEIGHT.y),
+                     nTYPEHUQ = sum(NWEIGHT.y)),
             by=c("TYPEHUQ","F_TYPEHUQ")][order(TYPEHUQ)]
-#    TYPEHUQ                              F_TYPEHUQ   fTYPEHUQ
-# 1:       1                            Mobile Home 0.03226220
-# 2:       2                 Single-Family Detached 0.57783682
-# 3:       3                 Single-Family Attached 0.07013561
-# 4:       4 Apartment in Building with 2 - 4 Units 0.08466972
-# 5:       5    Apartment in Building with 5+ Units 0.23509564
+#    TYPEHUQ                              F_TYPEHUQ   fTYPEHUQ  nTYPEHUQ
+# 1:       1                            Mobile Home 0.03226220  394079.3
+# 2:       2                 Single-Family Detached 0.57783682 7058213.8
+# 3:       3                 Single-Family Attached 0.07013561  856698.9
+# 4:       4 Apartment in Building with 2 - 4 Units 0.08466972 1034231.5
+# 5:       5    Apartment in Building with 5+ Units 0.23509564 2871667.6
+
+# compare to Figure 1.10 California Housing Stock by Type
+# in /home/jiml/library/to read/California's-Housing-Future-Main-Document-Draft_2017.pdf
+
+DT_TYPEHUQ[str_detect(F_TYPEHUQ,"Mobile"),]
+#    TYPEHUQ   F_TYPEHUQ  fTYPEHUQ nTYPEHUQ
+# 1:       1 Mobile Home 0.0322622 394079.3
+#                           4%      500,000 
+
+DT_TYPEHUQ[str_detect(F_TYPEHUQ,"Single-Family"),
+           list(fTYPEHUQ=sum(fTYPEHUQ),
+                nTYPEHUQ=sum(nTYPEHUQ))]
+#     fTYPEHUQ nTYPEHUQ
+# 1: 0.6479724  7914913
+#     65%       9000000
+
+DT_TYPEHUQ[str_detect(F_TYPEHUQ,"Apartment"),
+           list(fTYPEHUQ=sum(fTYPEHUQ),
+                nTYPEHUQ=sum(nTYPEHUQ))]
+#     fTYPEHUQ nTYPEHUQ
+# 1: 0.3197654  3905899
+#      31%      4300000
+
+# probably close enough
 
 # chart number of housing units by type of building
 ggplot(data = DT_RECS_CA) +
