@@ -47,4 +47,17 @@ DT_HOUSE_AGE <-
                      ),
               by=c("F_TYPEHUQ","F_YEARMADERANGE")][order(YEARMADERANGE,TYPEHUQ)]
 
+# set the width of year made range
+
+
+# plot of number of house type by age bin
+ggplot(data = DT_HOUSE_AGE,
+       aes(x=F_YEARMADERANGE, y=nTYPEHUQ, 
+           fill=F_TYPEHUQ)
+       ) +
+  geom_bar(stat="identity", position="identity", color="black") +
+  scale_fill_manual(values=c("deepskyblue4","deepskyblue4",
+                             "lightskyblue","lightskyblue","chartreuse4")) 
+length(DT_HOUSE_AGE$F_YEARMADERANGE)  
+  
 
