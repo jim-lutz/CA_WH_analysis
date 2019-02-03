@@ -47,15 +47,40 @@ DT_HOUSE_AGE <-
                      ),
               by=c("F_TYPEHUQ","F_YEARMADERANGE")][order(YEARMADERANGE,TYPEHUQ)]
 
-# set the width of year made range
+# date at end of bin
+DT_HOUSE_AGE[,list(F_YEARMADERANGE = unique(F_YEARMADERANGE)), by=YEARMADERANGE ]
+
+DT_YEAREND <-
+  data.table(YEARMADERANGE = c(1:8),
+             YEAREND = c(1950, 1959, 1969, 1979, 1989, 1999, 2004, 2009)
+             )
+
+# add YEAREND to DT_HOUSE_AGE
+DT_HOUSE_AGE <-
+  merge(DT_HOUSE_AGE, DT_YEAREND, by='YEARMADERANGE')
+
+names(DT_HOUSE_AGE)
+unique(DT_HOUSE_AGE$F_TYPEHUQ)
+DT_HOUSE_AGE[,list(F_TYPEHUQ=unique(F_TYPEHUQ)),by=TYPEHUQ]
+
+# cummulative number of houses by type
+DT_HOUSE_AGE[ TYPEHUQ==1, cum]
+
+# want stacked area in this order
+# Mobile Home, Apartment in Building with 5+ Units, Apartment in Building with 2 - 4 Units,
+# Single-Family Attached, Single-Family Detached                
+DT_HOUSE_AGE[, list(level1 = sum(nTYPEHUQ)),
+             by=YEAREND]
 
 
-# plot of number of house type by age bin
-ggplot(data = DT_HOUSE_AGE,
-       aes(x=F_YEARMADERANGE, y=nTYPEHUQ, 
-           fill=F_TYPEHUQ)
-       ) +
-  geom_bar(stat="identity", position="identity", color="black") +
+# plot of number of houses by type by age bin
+ggplot(data = DT_HOUSE_AGE, aex(x=YEAREND)) +
+  
+  # [1] Mobile Home                            Single-Family Detached                
+  [3] Single-Family Attached                 Apartment in Building with 2 - 4 Units
+[5] Apartment in Building with 5+ Units   
+
+     geom_bar(stat="identity", position="identity", color="black") +
   scale_fill_manual(values=c("deepskyblue4","deepskyblue4",
                              "lightskyblue","lightskyblue","chartreuse4")) 
 length(DT_HOUSE_AGE$F_YEARMADERANGE)  
