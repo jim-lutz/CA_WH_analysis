@@ -77,3 +77,7 @@ for some queries when Eddie was preparing his presentation for the workshop.
     make sure matches HCD report    
     
     see house_type.R, HCD data from AHS data
+    
+2019-02-03
+    stacked cumulative area plots to show number of houses by type by year
+        

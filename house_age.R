@@ -40,8 +40,8 @@ DT_RECS_CA[ ,
 
 # make a simple data.table to plot
 DT_HOUSE_AGE <-
-  DT_RECS_CA[ , list(fTYPEHUQ = sum(NWEIGHT.y)/sum(DT_RECS_CA$NWEIGHT.y),
-                     nTYPEHUQ = sum(NWEIGHT.y),
+  DT_RECS_CA[ , list(fTYPEHUQ = sum(NWEIGHT.y)/sum(DT_RECS_CA$NWEIGHT.y), # fraction
+                     nTYPEHUQ = sum(NWEIGHT.y), # number
                      TYPEHUQ  = unique(TYPEHUQ),
                      YEARMADERANGE = unique(YEARMADERANGE)
                      ),
@@ -50,6 +50,7 @@ DT_HOUSE_AGE <-
 # date at end of bin
 DT_HOUSE_AGE[,list(F_YEARMADERANGE = unique(F_YEARMADERANGE)), by=YEARMADERANGE ]
 
+# YEAREND
 DT_YEAREND <-
   data.table(YEARMADERANGE = c(1:8),
              YEAREND = c(1950, 1959, 1969, 1979, 1989, 1999, 2004, 2009)
@@ -61,19 +62,56 @@ DT_HOUSE_AGE <-
 
 names(DT_HOUSE_AGE)
 unique(DT_HOUSE_AGE$F_TYPEHUQ)
+
+# dcast (long to wide), 
+DT_nTYPEHUQ_YEAREND <-
+  dcast(DT_HOUSE_AGE,
+        YEAREND + F_YEARMADERANGE ~ TYPEHUQ, 
+        value.var = c("nTYPEHUQ"))
+
+# cleanup the names
+setnames(DT_nTYPEHUQ_YEAREND, 
+         old = 3:7,
+         new = paste("TYPEHUQ",1:5,sep = "_") )
+
+# cummulative number of house by type
+DT_nTYPEHUQ_YEAREND[ , `:=` (TYPEHUQ_1c = cumsum(TYPEHUQ_1),
+                             TYPEHUQ_2c = cumsum(TYPEHUQ_2),
+                             TYPEHUQ_3c = cumsum(TYPEHUQ_3),
+                             TYPEHUQ_4c = cumsum(TYPEHUQ_4),
+                             TYPEHUQ_5c = cumsum(TYPEHUQ_5))
+                     ]
+
 DT_HOUSE_AGE[,list(F_TYPEHUQ=unique(F_TYPEHUQ)),by=TYPEHUQ]
+#    TYPEHUQ                              F_TYPEHUQ
+# 1:       1                            Mobile Home
+# 2:       2                 Single-Family Detached
+# 3:       3                 Single-Family Attached
+# 4:       4 Apartment in Building with 2 - 4 Units
+# 5:       5    Apartment in Building with 5+ Units
 
-# cummulative number of houses by type
-DT_HOUSE_AGE[ TYPEHUQ==1, cum]
+# want stacked areas in this order from top to bottom
+# Mobile Home, (1+5+4+3+2) 
+# Apartment in Building with 5+ Units, (5+4+3+2) 
+# Apartment in Building with 2 - 4 Units, (4+3+2) 
+# Single-Family Attached, (3+2) 
+# Single-Family Detached, (2)                
 
-# want stacked area in this order
-# Mobile Home, Apartment in Building with 5+ Units, Apartment in Building with 2 - 4 Units,
-# Single-Family Attached, Single-Family Detached                
-DT_HOUSE_AGE[, list(level1 = sum(nTYPEHUQ)),
-             by=YEAREND]
+# build the cumulative geom_areas to plot
+DT_nTYPEHUQ_YEAREND[ , area5 :=         TYPEHUQ_2c ] # Single-Family Detached
+DT_nTYPEHUQ_YEAREND[ , area4 := area5 + TYPEHUQ_3c ] # += Single-Family Attached
+DT_nTYPEHUQ_YEAREND[ , area3 := area4 + TYPEHUQ_4c ] # += Apartment in Building with 2 - 4 Units
+DT_nTYPEHUQ_YEAREND[ , area2 := area3 + TYPEHUQ_5c ] # += Apartment in Building with 5+ Units
+DT_nTYPEHUQ_YEAREND[ , area1 := area2 + TYPEHUQ_1c ] # += Mobile Home
 
+names(DT_nTYPEHUQ_YEAREND)
+# cleanup 
+DT_nTYPEHUQ_YEAREND <- 
+  DT_nTYPEHUQ_YEAREND[ , list(YEAREND,F_YEARMADERANGE,
+                              area1, area2, area3, area4, area5)]
 
 # plot of number of houses by type by age bin
+# see http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html#Stacked%20Area%20Chart
 ggplot(data = DT_HOUSE_AGE, aex(x=YEAREND)) +
   
   # [1] Mobile Home                            Single-Family Detached                
