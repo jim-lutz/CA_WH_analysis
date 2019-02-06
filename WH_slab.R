@@ -39,3 +39,63 @@ DT_RECS_CA[ ,
             )
             ]
 
+# factors for CONCRETE	Housing unit over a concrete slab
+DT_RECS_CA[ , 
+            F_CONCRETE:= factor(x=CONCRETE,
+                                     levels = c('0', '1', '-2'),
+                                     labels = c('No', 'Yes', 'Not Applicable')
+                                )]
+
+# factors for FUELH2O	Fuel used by main water heater	
+DT_RECS_CA[ , 
+            F_FUELH2O:= factor(x=FUELH2O,
+                                levels = c('1', '2', '3', '4', '5', '7', '8', '21', '-2'),
+                                labels = c("Natural Gas", 
+                                           "Propane/LPG",
+                                           "Fuel Oil", 
+                                           "Kerosene", "Electricity",
+                                           "Wood", 
+                                           "Solar", 
+                                           "Other Fuel", 
+                                           "Not Applicable")
+                                )]
+
+# possible fields
+# PGASHTWA	Who pays for natural gas for water heating
+# CUFEETNGWTH	Natural Gas usage for water heating, in hundred cubic feet, 2009
+# BTUNGWTH	Natural Gas usage for water heating, in thousand BTU, 2009
+
+# make sure right factors are in data.table
+grep("F_",names(DT_RECS_CA), value = TRUE)
+
+
+# make a simple data.table to plot
+DT_SLAB_WHNG <-
+  DT_RECS_CA[F_TYPEHUQ    == "Single-Family Detached" & 
+               F_CONCRETE == "Yes" & 
+               F_FUELH2O    == "Natural Gas",
+             
+             list(F_TYPEHUQ,
+                  F_CONCRETE,
+                  F_FUELH2O,
+                  NWEIGHT.y, # number of housing units
+                  WHtherms = BTUNGWTH/100) # 1000s BTU for WH fuel / 100
+             ]           
+             
+# check out DT_SLAB_WHNG
+sum(DT_SLAB_WHNG$NWEIGHT.y)
+# [1] 4150964
+summary(DT_SLAB_WHNG$WHtherms)
+#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#   21.92  130.54  177.29  201.09  239.58 1560.23 
+
+# sort by WHtherms
+setkey(DT_SLAB_WHNG,WHtherms)
+
+# cumulative plot
+ggplot(data = DT_SLAB_WHNG ) +
+  geom_line(aes(x=cumsum(NWEIGHT.y),y=WHtherms)) 
+  
+
+
+
