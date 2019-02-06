@@ -112,11 +112,18 @@ DT_nTYPEHUQ_YEAREND <-
 
 # plot of number of houses by type by age bin
 # see http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html#Stacked%20Area%20Chart
-ggplot(data = DT_HOUSE_AGE, aex(x=YEAREND)) +
-  
-  # [1] Mobile Home                            Single-Family Detached                
-  [3] Single-Family Attached                 Apartment in Building with 2 - 4 Units
-[5] Apartment in Building with 5+ Units   
+ggplot(data = DT_nTYPEHUQ_YEAREND, aes(x=YEAREND)) +
+  geom_area(aes(y=area1), fill="chartreuse4", color='black' ) +
+  geom_area(aes(y=area2), fill="lightskyblue", color='black' ) +
+  geom_area(aes(y=area3), fill="lightskyblue", color='black' ) +
+  geom_area(aes(y=area4), fill="deepskyblue4", color='black' ) +
+  geom_area(aes(y=area5), fill="deepskyblue4", color='black' ) +
+  labs(title="number of houses by type", # title, axes labels,  caption 
+     # subtitle="", 
+     caption="Source: RECS 2009", 
+     y="number of houses (M)",
+     x="year built") +  
+scale_y_continuous(labels = c("0","2.5","5.0","7.5","10.0","12.5"))
 
      geom_bar(stat="identity", position="identity", color="black") +
   scale_fill_manual(values=c("deepskyblue4","deepskyblue4",
