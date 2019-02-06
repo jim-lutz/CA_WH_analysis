@@ -75,7 +75,8 @@ DT_SLAB_WHNG <-
                F_CONCRETE == "Yes" & 
                F_FUELH2O    == "Natural Gas",
              
-             list(F_TYPEHUQ,
+             list(DOEID, #	Unique identifier for each respondent
+                  F_TYPEHUQ,
                   F_CONCRETE,
                   F_FUELH2O,
                   NWEIGHT.y, # number of housing units
@@ -94,7 +95,28 @@ setkey(DT_SLAB_WHNG,WHtherms)
 
 # cumulative plot
 ggplot(data = DT_SLAB_WHNG ) +
-  geom_line(aes(x=cumsum(NWEIGHT.y),y=WHtherms)) 
+  geom_line(aes(x=cumsum(NWEIGHT.y),y=WHtherms)) +
+  labs(x = "number of houses (M)", y = "therms/year",
+       title = "California Water Heater Energy Use",
+       subtitle = "Single-Family Detached, Concrete Foundation, Natural Gas",
+       caption = "from 2009 RECS") +
+  scale_x_continuous(breaks = c(0,1e6,2e6,3e6,4e6),
+                     labels = c("0","1.0","2.0","3.0","4.0"))
+
+# get date to include in file name
+d <- format(Sys.time(), "%F")
+
+# save chart
+ggsave(filename = paste0("SLAB_WHNG","_",d,".png"), 
+       path=wd_charts, scale = 1.5) 
+
+# save data
+fwrite(DT_SLAB_WHNG, file = paste0(wd_data,"SLAB_WHNG","_",d,".csv") )
+
+
+  
+
+
   
 
 

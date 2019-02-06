@@ -1,2 +1,4 @@
 2019-02-06
     distribution of annual WH therms for slab foundation houses
+    got the basic plot and data.table for Yanda, Gary & Carl
+    
