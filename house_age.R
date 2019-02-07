@@ -105,10 +105,6 @@ DT_nTYPEHUQ_YEAREND[ , area2 := area3 + TYPEHUQ_5c ] # += Apartment in Building 
 DT_nTYPEHUQ_YEAREND[ , area1 := area2 + TYPEHUQ_1c ] # += Mobile Home
 
 names(DT_nTYPEHUQ_YEAREND)
-# cleanup 
-DT_nTYPEHUQ_YEAREND <- 
-  DT_nTYPEHUQ_YEAREND[ , list(YEAREND,F_YEARMADERANGE,
-                              area1, area2, area3, area4, area5)]
 
 # bogus data to plot for legend
 DT_bogus <- data.table(
@@ -152,6 +148,40 @@ ggplot(data = DT_nTYPEHUQ_YEAREND, aes(x=YEAREND)) +
                                 "Apartment in Building with 2 - 4 Units",
                                 "Single-Family Attached",
                                 "Single-Family Detached")
-                     ) 
+                     ) + 
+  guides(color = guide_legend(title = "type of building") )
+
+names(DT_nTYPEHUQ_YEAREND)
+
+# cleanup data for sharing
+DT_nTYPEHUQ_YEAREND <- 
+  DT_nTYPEHUQ_YEAREND[ , list(YEAREND,F_YEARMADERANGE,
+                              `Mobile Home`            = round(TYPEHUQ_1),
+                              `Single-Family Detached` = round(TYPEHUQ_2),
+                              `Single-Family Attached` = round(TYPEHUQ_3),
+                              `Apartment in Building with 2 - 4 Units` = round(TYPEHUQ_4),
+                              `Apartment in Building with 5+ Units` = round(TYPEHUQ_5)
+                              )
+                       ]
+
+#    TYPEHUQ                              F_TYPEHUQ
+# 1:       1                            Mobile Home
+# 2:       2                 Single-Family Detached
+# 3:       3                 Single-Family Attached
+# 4:       4 Apartment in Building with 2 - 4 Units
+# 5:       5    Apartment in Building with 5+ Units
+
+
+# get date to include in file name
+d <- format(Sys.time(), "%F")
+
+# save chart
+ggsave(filename = paste0("type_by_year","_",d,".png"), 
+       path=wd_charts, scale = 1.5) 
+
+# save data
+fwrite(DT_nTYPEHUQ_YEAREND, file = paste0(wd_data,"type_by_year","_",d,"csv") )
+
+
 
 

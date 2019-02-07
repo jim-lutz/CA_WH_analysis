@@ -84,3 +84,8 @@ for some queries when Eddie was preparing his presentation for the workshop.
 2019-02-07
     add legend to cumulative area plots to show number of houses by type by year
     try adding hand crafted data to add a custom fill legend
+    refactor data.table for sharing.
+    
+    
+    stacked ribbons would probably be better, melt back to long first?
+    https://ggplot2.tidyverse.org/reference/geom_ribbon.html
