@@ -110,6 +110,20 @@ DT_nTYPEHUQ_YEAREND <-
   DT_nTYPEHUQ_YEAREND[ , list(YEAREND,F_YEARMADERANGE,
                               area1, area2, area3, area4, area5)]
 
+# bogus data to plot for legend
+DT_bogus <- data.table(
+  x=c(1950:1954),
+  y=c(-5e6,-5.2e6,-5.4e6,-5.6e6,-5.8e6),
+  type=c("Single-Family Detached",
+         "Single-Family Attached",
+         "Apartment in Building with 2 - 4 Units",
+         "Apartment in Building with 5+ Units",
+         "Mobile Home"
+         ),
+  colors= c("chartreuse4", "lightskyblue", "lightskyblue", "deepskyblue4", "deepskyblue4")  
+  )
+
+
 # plot of number of houses by type by age bin
 # see http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html#Stacked%20Area%20Chart
 ggplot(data = DT_nTYPEHUQ_YEAREND, aes(x=YEAREND)) +
@@ -118,13 +132,26 @@ ggplot(data = DT_nTYPEHUQ_YEAREND, aes(x=YEAREND)) +
   geom_area(aes(y=area3), fill="lightskyblue", color='black' ) +
   geom_area(aes(y=area4), fill="deepskyblue4", color='black' ) +
   geom_area(aes(y=area5), fill="deepskyblue4", color='black' ) +
-  labs(title="number of housing units by type", # title, axes labels,  caption 
+  labs(title="Housing Units by Type in California", # title, axes labels,  caption 
      # subtitle="", 
      caption="Source: RECS 2009", 
      y="number of housing units (million)",
      x="year built") +  
-  scale_y_continuous(labels = c("0","2.5","5.0","7.5","10.0","12.5")) +
-  scale_fill_manual(values = c("chartreuse4") ) +
-guides(fill = "legend")  
+  scale_y_continuous(breaks=c(0,2.5e6,5.0e6,7.5e6,10.0e6,12.5e6),
+                     labels = c("0","2.5","5.0","7.5","10.0","12.5"),
+                     limits = c(0,12.5e6)) +
+  # this is plotting the hand crafted data just to get the right legends
+  geom_point(data = DT_bogus, aes(x=x,y=y,color=type) ) +
+  scale_color_manual(values = c("chartreuse4", 
+                                "lightskyblue", 
+                                "lightskyblue", 
+                                "deepskyblue4", 
+                                "deepskyblue4") ,
+                     labels = c("Mobile Home",
+                                "Apartment in Building with 5+ Units",
+                                "Apartment in Building with 2 - 4 Units",
+                                "Single-Family Attached",
+                                "Single-Family Detached")
+                     ) 
 
 

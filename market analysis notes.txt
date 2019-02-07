@@ -83,3 +83,4 @@ for some queries when Eddie was preparing his presentation for the workshop.
         
 2019-02-07
     add legend to cumulative area plots to show number of houses by type by year
+    try adding hand crafted data to add a custom fill legend
