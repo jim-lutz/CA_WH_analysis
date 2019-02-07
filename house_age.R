@@ -118,16 +118,13 @@ ggplot(data = DT_nTYPEHUQ_YEAREND, aes(x=YEAREND)) +
   geom_area(aes(y=area3), fill="lightskyblue", color='black' ) +
   geom_area(aes(y=area4), fill="deepskyblue4", color='black' ) +
   geom_area(aes(y=area5), fill="deepskyblue4", color='black' ) +
-  labs(title="number of houses by type", # title, axes labels,  caption 
+  labs(title="number of housing units by type", # title, axes labels,  caption 
      # subtitle="", 
      caption="Source: RECS 2009", 
-     y="number of houses (M)",
+     y="number of housing units (million)",
      x="year built") +  
-scale_y_continuous(labels = c("0","2.5","5.0","7.5","10.0","12.5"))
+  scale_y_continuous(labels = c("0","2.5","5.0","7.5","10.0","12.5")) +
+  scale_fill_manual(values = c("chartreuse4") ) +
+guides(fill = "legend")  
 
-     geom_bar(stat="identity", position="identity", color="black") +
-  scale_fill_manual(values=c("deepskyblue4","deepskyblue4",
-                             "lightskyblue","lightskyblue","chartreuse4")) 
-length(DT_HOUSE_AGE$F_YEARMADERANGE)  
-  
 
