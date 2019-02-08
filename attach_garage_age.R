@@ -83,22 +83,17 @@ DT_RECS_CA[ TYPEHUQ==2 & PRKGPLC1==1,
 # 2:            1  756816.7
 # 3:            3  674675.6
 
-
-
-
-
-
 # make a simple data.table to plot
-DT_HOUSE_AGE <-
-  DT_RECS_CA[ , list(fTYPEHUQ = sum(NWEIGHT.y)/sum(DT_RECS_CA$NWEIGHT.y), # fraction
-                     nTYPEHUQ = sum(NWEIGHT.y), # number
-                     TYPEHUQ  = unique(TYPEHUQ),
-                     YEARMADERANGE = unique(YEARMADERANGE)
-                     ),
-              by=c("F_TYPEHUQ","F_YEARMADERANGE")][order(YEARMADERANGE,TYPEHUQ)]
+DT_GARAGE_AGE <-
+  DT_RECS_CA[ TYPEHUQ==2, 
+              list(nTYPEHUQ = sum(NWEIGHT.y), # number
+                   YEARMADERANGE = unique(YEARMADERANGE),
+                   SIZEOFGARAGE = unique(SIZEOFGARAGE)
+                   ),
+              by=c("F_TYPEHUQ","F_YEARMADERANGE", "F_PRKGPLC1", "F_SIZEOFGARAGE")][order(YEARMADERANGE, SIZEOFGARAGE)]
 
 # date at end of bin
-DT_HOUSE_AGE[,list(F_YEARMADERANGE = unique(F_YEARMADERANGE)), by=YEARMADERANGE ]
+DT_GARAGE_AGE[,list(F_YEARMADERANGE = unique(F_YEARMADERANGE)), by=YEARMADERANGE ]
 
 # YEAREND
 DT_YEAREND <-
@@ -106,12 +101,11 @@ DT_YEAREND <-
              YEAREND = c(1950, 1959, 1969, 1979, 1989, 1999, 2004, 2009)
              )
 
-# add YEAREND to DT_HOUSE_AGE
-DT_HOUSE_AGE <-
-  merge(DT_HOUSE_AGE, DT_YEAREND, by='YEARMADERANGE')
+# add YEAREND to DT_GARAGE_AGE
+DT_GARAGE_AGE <-
+  merge(DT_GARAGE_AGE, DT_YEAREND, by='YEARMADERANGE')
 
-names(DT_HOUSE_AGE)
-unique(DT_HOUSE_AGE$F_TYPEHUQ)
+names(DT_GARAGE_AGE)
 
 # dcast (long to wide), 
 DT_nTYPEHUQ_YEAREND <-
