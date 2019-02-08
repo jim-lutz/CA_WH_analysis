@@ -86,6 +86,8 @@ for some queries when Eddie was preparing his presentation for the workshop.
     try adding hand crafted data to add a custom fill legend
     refactor data.table for sharing.
     
-    
     stacked ribbons would probably be better, melt back to long first?
     https://ggplot2.tidyverse.org/reference/geom_ribbon.html
+    
+    Single-Family Detached, number of attached garages by year
+    stacked ribbon charts, 
