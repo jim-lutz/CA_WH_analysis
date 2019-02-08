@@ -111,4 +111,5 @@ for some queries when Eddie was preparing his presentation for the workshop.
     then melt back wide to long
     YEAREND GARAGETYPE YMIN YMAX 
     
-    
+2019-02-08
+    looks like can do multiple ribbons with aes(ymin, ymax, fill=garage)
