@@ -12,6 +12,9 @@ wd <- getwd()
 wd_data    <- paste(wd,"/data/",sep="")      # use this for interim data files
 wd_charts  <-paste(wd,"/charts/",sep="")     # use this for charts, ggsave puts in /
 
+# get date to include in file name
+d <- format(Sys.time(), "%F")
+
 # load data 2009 RECS California data
 load(file = paste0('data/', "DT_RECS_CA.Rdata"))
 
@@ -179,54 +182,20 @@ DT_YRIBBONS <-
                   YMAX=n[9:40])
        ) 
 
-# # bogus data to plot for legend
-# DT_bogus <- data.table(
-#   x=c(1950:1954),
-#   y=c(-5e6,-5.2e6,-5.4e6,-5.6e6,-5.8e6),
-#   type=c("Single-Family Detached",
-#          "Single-Family Attached",
-#          "Apartment in Building with 2 - 4 Units",
-#          "Apartment in Building with 5+ Units",
-#          "Mobile Home"
-#          ),
-#   colors= c("chartreuse4", "lightskyblue", "lightskyblue", "deepskyblue4", "deepskyblue4")  
-#   )
-# 
-
 # plot of number of houses by type of attached garage by age bin
 # see https://ggplot2.tidyverse.org/reference/geom_ribbon.html
 ggplot(data = DT_YRIBBONS, aes(x=YEAREND)) +
-  geom_ribbon(aes(ymin=YMIN, ymax=YMAX, fill=SIZEOFGARAGE), 
-              color='black', show.legend = TRUE )
-
-
-+
-  geom_area(aes(y=area2), fill="lightskyblue", color='black' ) +
-  geom_area(aes(y=area3), fill="lightskyblue", color='black' ) +
-  geom_area(aes(y=area4), fill="deepskyblue4", color='black' ) +
-  geom_area(aes(y=area5), fill="deepskyblue4", color='black' ) +
-  labs(title="Housing Units by Type in California", # title, axes labels,  caption 
-     # subtitle="", 
+  geom_ribbon(aes(ymin=YMIN, ymax=YMAX, fill=rev(SIZEOFGARAGE)), 
+              color='black', show.legend = TRUE ) +
+  labs(title="Attached Garages in California", # title, axes labels,  caption 
+     subtitle="Single-Family Detached, size of garage (0 = no attached garage)", 
      caption="Source: RECS 2009", 
      y="number of housing units (million)",
-     x="year built") +  
-  scale_y_continuous(breaks=c(0,2.5e6,5.0e6,7.5e6,10.0e6,12.5e6),
-                     labels = c("0","2.5","5.0","7.5","10.0","12.5"),
-                     limits = c(0,12.5e6)) +
-  # this is plotting the hand crafted data just to get the right legends
-  geom_point(data = DT_bogus, aes(x=x,y=y,color=type) ) +
-  scale_color_manual(values = c("chartreuse4", 
-                                "lightskyblue", 
-                                "lightskyblue", 
-                                "deepskyblue4", 
-                                "deepskyblue4") ,
-                     labels = c("Mobile Home",
-                                "Apartment in Building with 5+ Units",
-                                "Apartment in Building with 2 - 4 Units",
-                                "Single-Family Attached",
-                                "Single-Family Detached")
-                     ) + 
-  guides(color = guide_legend(title = "type of building") )
+     x="year built")  +  
+  scale_y_continuous(breaks=c(0,2.0e6,4.0e6,6.0e6),
+                     labels = c("0","2.0","4.0","6.0"),
+                     limits = c(0,7.5e6)) +
+  guides(fill = guide_legend(title = "parking spaces") )
 
 names(DT_nTYPEHUQ_YEAREND)
 
@@ -248,9 +217,6 @@ DT_nTYPEHUQ_YEAREND <-
 # 4:       4 Apartment in Building with 2 - 4 Units
 # 5:       5    Apartment in Building with 5+ Units
 
-
-# get date to include in file name
-d <- format(Sys.time(), "%F")
 
 # save chart
 ggsave(filename = paste0("type_by_year","_",d,".png"), 

@@ -120,3 +120,5 @@ for some queries when Eddie was preparing his presentation for the workshop.
     
     accumulated on columns in DT_ATTACH_GARAGE (wide)
     
+    limit to NG?
+    
