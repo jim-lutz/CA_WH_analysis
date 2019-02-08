@@ -40,7 +40,7 @@ DT_RECS_CA[ ,
             ]
 
 
-# look at factors for PRKGPLC1	Attached garage	
+# factors for PRKGPLC1	Attached garage	
 DT_RECS_CA[ , 
             F_PRKGPLC1:= factor(x=PRKGPLC1,
                                 levels = c(0, 1, -2),
@@ -60,6 +60,28 @@ DT_RECS_CA[ TYPEHUQ==2,
 # 2:        0       2  2081562            No
 # nearly 5 million Single-Family Detached houses with attached garages
 
+
+# actors for SIZEOFGARAGE	Size of attached garage
+DT_RECS_CA[ , 
+            F_SIZEOFGARAGE:= factor(x=SIZEOFGARAGE,
+                                levels = c(1, 2, 3, -2),
+                                labels = c('One-car garage',
+                                           'Two-car garage',
+                                           'Three-or-more-car',
+                                           'garage Not Applicable')
+                                )
+            ]
+
+# how many 'Single-Family Detached' with attached garages by Size of attached garage?
+DT_RECS_CA[ TYPEHUQ==2 & PRKGPLC1==1,
+            list(nTYPEHUQ = sum(NWEIGHT.y) # number housing units
+                 ),
+            by=c("SIZEOFGARAGE")
+            ]
+#    SIZEOFGARAGE  nTYPEHUQ
+# 1:            2 3545159.5
+# 2:            1  756816.7
+# 3:            3  674675.6
 
 
 
