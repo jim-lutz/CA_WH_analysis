@@ -118,3 +118,5 @@ for some queries when Eddie was preparing his presentation for the workshop.
     
     don't forget it has to be cumulative
     
+    accumulated on columns in DT_ATTACH_GARAGE (wide)
+    

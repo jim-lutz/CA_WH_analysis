@@ -75,6 +75,10 @@ DT_RECS_CA[ ,
                                 )
             ]
 
+# check this did what was expected
+DT_RECS_CA[, list(F_SIZEOFGARAGE = unique(F_SIZEOFGARAGE)), 
+           by=SIZEOFGARAGE]
+
 # how many 'Single-Family Detached' with attached garages by Size of attached garage?
 DT_RECS_CA[ TYPEHUQ==2 ,
             list(nTYPEHUQ = sum(NWEIGHT.y) # number housing units
@@ -122,6 +126,13 @@ dcast(DT_GARAGE_AGE[, list(YEAREND,
       YEAREND ~ SIZEOFGARAGE, 
       value.var = c("nTYPEHUQ"),
       fill = 0)
+
+# list of values of SIZEOFGARAGE that become column names
+cols.SIZEOFGARAGE <- as.character(sort(unique(DT_GARAGE_AGE$SIZEOFGARAGE)))
+
+# accumulate prior years
+DT_ATTACH_GARAGE[, (cols.SIZEOFGARAGE) := lapply(.SD, cumsum), 
+                 .SDcols=cols.SIZEOFGARAGE]
 
 # cleanup the names
 setnames(DT_ATTACH_GARAGE, 
