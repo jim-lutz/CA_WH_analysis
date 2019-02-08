@@ -113,3 +113,8 @@ for some queries when Eddie was preparing his presentation for the workshop.
     
 2019-02-08
     looks like can do multiple ribbons with aes(ymin, ymax, fill=garage)
+    
+    looking for YEAREND, SIZEOFGARAGE, YMIN, YMAX
+    
+    don't forget it has to be cumulative
+    

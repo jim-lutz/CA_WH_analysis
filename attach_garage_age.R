@@ -60,32 +60,36 @@ DT_RECS_CA[ TYPEHUQ==2,
 # 2:        0       2  2081562            No
 # nearly 5 million Single-Family Detached houses with attached garages
 
+# reset 'No Attached Garage'
+DT_RECS_CA[SIZEOFGARAGE ==-2, SIZEOFGARAGE:=0 ]
 
 # add factors for SIZEOFGARAGE	Size of attached garage
 DT_RECS_CA[ , 
             F_SIZEOFGARAGE:= factor(x=SIZEOFGARAGE,
-                                levels = c(1, 2, 3, -2),
-                                labels = c('One-car garage',
+                                levels = c(0, 1, 2, 3),
+                                labels = c('No Attached Garage',
+                                           'One-car garage',
                                            'Two-car garage',
-                                           'Three-or-more-car',
-                                           'No Attached Garage')
+                                           'Three-or-more-car'
+                                           )
                                 )
             ]
 
 # how many 'Single-Family Detached' with attached garages by Size of attached garage?
-DT_RECS_CA[ TYPEHUQ==2 & PRKGPLC1==1,
+DT_RECS_CA[ TYPEHUQ==2 ,
             list(nTYPEHUQ = sum(NWEIGHT.y) # number housing units
                  ),
             by=c("SIZEOFGARAGE")
-            ]
+            ][order(SIZEOFGARAGE)]
 #    SIZEOFGARAGE  nTYPEHUQ
-# 1:            2 3545159.5
+# 1:            0 2081562.1
 # 2:            1  756816.7
-# 3:            3  674675.6
+# 3:            2 3545159.5
+# 4:            3  674675.6
 
 # make a simple data.table to plot
 DT_GARAGE_AGE <-
-  DT_RECS_CA[ TYPEHUQ==2, 
+  DT_RECS_CA[ TYPEHUQ==2, # 'Single-Family Detached' only
               list(nTYPEHUQ = sum(NWEIGHT.y), # number
                    YEARMADERANGE = unique(YEARMADERANGE),
                    SIZEOFGARAGE = unique(SIZEOFGARAGE)
@@ -113,68 +117,56 @@ DT_GARAGE_AGE
 DT_ATTACH_GARAGE <-
 dcast(DT_GARAGE_AGE[, list(YEAREND,
                            SIZEOFGARAGE,
-                           F_SIZEOFGARAGE,
                            nTYPEHUQ)
                     ],
-      YEAREND ~ F_SIZEOFGARAGE, 
+      YEAREND ~ SIZEOFGARAGE, 
       value.var = c("nTYPEHUQ"),
       fill = 0)
 
 # cleanup the names
 setnames(DT_ATTACH_GARAGE, 
          old = 2:5,
-         new = paste("ATCHGAR",c(1:3,0),sep = "_") )
-
-# make the order easier to read
-setcolorder(DT_ATTACH_GARAGE, 
-            c("YEAREND", "ATCHGAR_0", "ATCHGAR_1", "ATCHGAR_2", "ATCHGAR_3"))
+         new = paste("SIZEOFGARAGE",c(0:3),sep = "_") )
 
 # ymin and ymax for ribbons
-# Three-or-more-car
-#   ymin = 0
-#   ymax = nTYPEHUQ
-DT_ATTACH_GARAGE[ , ymin.ATCHGAR_3 := 0]
-DT_ATTACH_GARAGE[ , ymax.ATCHGAR_3 := ATCHGAR_3]
+# Three-or-more-car, ymin = 0, ymax = nTYPEHUQ, Y0:Y1
+DT_ATTACH_GARAGE[ , Y0 := 0]
+DT_ATTACH_GARAGE[ , Y1 := Y0 + SIZEOFGARAGE_3]
 
-# Two-car garage
-#   ymin = ymax(Three-or-more-car)
-#   ymax = ymin + nTYPEHUQ
-DT_ATTACH_GARAGE[ , ymin.ATCHGAR_2 := ymax.ATCHGAR_3]
-DT_ATTACH_GARAGE[ , ymax.ATCHGAR_2 := ymin.ATCHGAR_2 + ATCHGAR_2]
+# Two-car garage, ymin = ymax(Three-or-more-car), ymax = ymin + nTYPEHUQ, Y1:Y2
+DT_ATTACH_GARAGE[ , Y2 := Y1 + SIZEOFGARAGE_2 ]
 
-# One-car garage
-#   ymin = ymax(Two-car garage)
-#   ymax = ymin + nTYPEHUQ
-DT_ATTACH_GARAGE[ , ymin.ATCHGAR_1 := ymax.ATCHGAR_2]
-DT_ATTACH_GARAGE[ , ymax.ATCHGAR_1 := ymin.ATCHGAR_1 + ATCHGAR_1]
+# One-car garage, ymin = ymax(Two-car garage), ymax = ymin + nTYPEHUQ, Y2:Y3
+DT_ATTACH_GARAGE[ , Y3 := Y2 + SIZEOFGARAGE_1]
 
-# No Attached Garage
-#   ymin = ymax(One-car garage)
-#   ymax = ymin + nTYPEHUQ
-DT_ATTACH_GARAGE[ , ymin.ATCHGAR_0 := ymax.ATCHGAR_1]
-DT_ATTACH_GARAGE[ , ymax.ATCHGAR_0 := ymin.ATCHGAR_0 + ATCHGAR_0]
+# No Attached Garage, ymin = ymax(One-car garage), ymax = ymin + nTYPEHUQ, Y3:Y4
+DT_ATTACH_GARAGE[ , Y4 := Y3 + SIZEOFGARAGE_0 ]
 
 names(DT_ATTACH_GARAGE)
-# see about melt (wide to long)
-DT_YMIN <-
-  melt(DT_ATTACH_GARAGE[,list(YEAREND,
-                              ymin.ATCHGAR_3, ymax.ATCHGAR_3,
-                              ymin.ATCHGAR_2, ymax.ATCHGAR_2, 
-                              ymin.ATCHGAR_1, ymax.ATCHGAR_1,
-                              ymin.ATCHGAR_0, ymax.ATCHGAR_0)], 
-       id=c("YEAREND"),
-       measure.vars = c("ymin.ATCHGAR_3", "ymin.ATCHGAR_2", 
-                        "ymin.ATCHGAR_1", "ymin.ATCHGAR_0"),
-       variable.name = "garage",
-       value.name = "ymin")
 
+# see about melt (wide to long) for geom_ribbon
+DT_Y <-
+  melt(DT_ATTACH_GARAGE[,list(YEAREND,
+                              Y0, Y1, Y2, Y3, Y4)], 
+       id=c("YEAREND"),
+       measure.vars = c("Y0", "Y1", "Y2", "Y3", "Y4"),
+       variable.name = "Y",
+       value.name = "n")
 
 # want stacked ribbons in this order from top to bottom
-# 'No Attached Garage'
-# 'One-car garage',
-# 'Two-car garage',
-# 'Three-or-more-car',
+# 'No Attached Garage', Y0:Y1
+# 'One-car garage', Y1:Y2
+# 'Two-car garage', Y2:Y3
+# 'Three-or-more-car', Y3:Y4
 
+# define YMIN and YMAX as n[1:32] and n[9:40]
+DT_YRIBBONS <-
+  with(DT_Y,
+       data.table(YEAREND=YEAREND[1:32],
+                  SIZEOFGARAGE=str_sub(Y,2)[1:32],
+                  YMIN=n[1:32],
+                  YMAX=n[9:40])
+       ) 
 
 # # bogus data to plot for legend
 # DT_bogus <- data.table(
@@ -192,8 +184,8 @@ DT_YMIN <-
 
 # plot of number of houses by type of attached garage by age bin
 # see https://ggplot2.tidyverse.org/reference/geom_ribbon.html
-ggplot(data = DT_YMIN, aes(x=YEAREND)) +
-  geom_ribbon(aes(ymin=0, ymax=rev(ymin), fill=garage), 
+ggplot(data = DT_YRIBBONS, aes(x=YEAREND)) +
+  geom_ribbon(aes(ymin=YMIN, ymax=YMAX, fill=SIZEOFGARAGE), 
               color='black', show.legend = TRUE )
 
 
