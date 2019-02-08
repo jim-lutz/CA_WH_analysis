@@ -52,7 +52,7 @@ DT_RECS_CA[ ,
 DT_RECS_CA[ TYPEHUQ==2,
             list(TYPEHUQ = unique(TYPEHUQ),
                  nTYPEHUQ = sum(NWEIGHT.y), # number housing units
-                attach_Garage = unique(F_PRKGPLC1)),
+                Attached_Garage = unique(F_PRKGPLC1)),
             by=c("PRKGPLC1")
             ]
 #    PRKGPLC1 TYPEHUQ nTYPEHUQ attach_Garage
@@ -68,7 +68,7 @@ DT_RECS_CA[ ,
                                 labels = c('One-car garage',
                                            'Two-car garage',
                                            'Three-or-more-car',
-                                           'garage Not Applicable')
+                                           'No Attached Garage')
                                 )
             ]
 
@@ -106,6 +106,34 @@ DT_GARAGE_AGE <-
   merge(DT_GARAGE_AGE, DT_YEAREND, by='YEARMADERANGE')
 
 names(DT_GARAGE_AGE)
+str(DT_GARAGE_AGE)
+DT_GARAGE_AGE
+
+# ymin and ymax for ribbons
+# Three-or-more-car
+#   ymin = 0
+#   ymax = nTYPEHUQ
+# Two-car garage
+#   ymin = ymax(Three-or-more-car)
+#   ymax = ymin + nTYPEHUQ
+# One-car garage
+#   ymin = ymax(Two-car garage)
+#   ymax = ymin + nTYPEHUQ
+# No Attached Garage
+#   ymin = ymax(One-car garage)
+#   ymax = ymin + nTYPEHUQ
+
+# dcast (long to wide)
+DT_
+dcast(DT_GARAGE_AGE[, list(YEAREND,
+                           SIZEOFGARAGE,
+                           F_SIZEOFGARAGE,
+                           nTYPEHUQ)
+                    ],
+      YEAREND ~ F_SIZEOFGARAGE, 
+      value.var = c("nTYPEHUQ"))
+
+
 
 # dcast (long to wide), 
 DT_nTYPEHUQ_YEAREND <-

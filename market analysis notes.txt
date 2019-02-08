@@ -91,3 +91,24 @@ for some queries when Eddie was preparing his presentation for the workshop.
     
     Single-Family Detached, number of attached garages by year
     stacked ribbon charts, 
+    
+    dcast long to wide (YEAREND One-car garage Two-car garage Three-or-more-car No Attached Garage)
+    then
+    # ymin and ymax for ribbons
+    # Three-or-more-car
+    #   3Gymin = 0
+    #   3Gymax = nTYPEHUQ
+    # Two-car garage
+    #   2Gymin = ymax(Three-or-more-car)
+    #   2Gymax = ymin + nTYPEHUQ
+    # One-car garage
+    #   1Gymin = ymax(Two-car garage)
+    #   1Gymax = ymin + nTYPEHUQ
+    # No Attached Garage
+    #   0Gymin = ymax(One-car garage)
+    #   0Gymax = ymin + nTYPEHUQ
+
+    then melt back wide to long
+    YEAREND GARAGETYPE YMIN YMAX 
+    
+    
