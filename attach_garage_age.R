@@ -42,6 +42,32 @@ DT_RECS_CA[ ,
                                      )
             ]
 
+# add factors for FUELH2O	Fuel used by main water heater	
+DT_RECS_CA[ , 
+            F_FUELH2O:= factor(x=FUELH2O,
+                               levels = c(1, 2, 3, 4, 5, 7, 8, 21, -2),
+                               labels = c('Natural Gas', 
+                                          'Propane/LPG',
+                                          'Fuel Oil',
+                                          'Kerosene', 
+                                          'Electricity', 
+                                          'Wood', 
+                                          'Solar',
+                                          'Other Fuel',
+                                          'Not Applicable')
+                               )
+            ]
+                               
+# check numbers
+DT_RECS_CA[TYPEHUQ==2 , list(n=sum(NWEIGHT.y)),by=F_FUELH2O]
+#      F_FUELH2O           n
+# 1: Natural Gas 6242471.827
+# 2: Electricity  533696.927
+# 3: Propane/LPG  245824.694
+# 4:       Solar   28203.472
+# 5:    Fuel Oil    8016.831
+
+grep("FUEL",names(DT_RECS_CA), value = TRUE)
 
 # add factors for PRKGPLC1	Attached garage	
 DT_RECS_CA[ , 
@@ -63,6 +89,35 @@ DT_RECS_CA[ TYPEHUQ==2,
 # 2:        0       2  2081562            No
 # nearly 5 million Single-Family Detached houses with attached garages
 
+# table of sum NWEIGHT.y by F_FUELH2O and F_PRKGPLC1
+DT_RECS_CA[ TYPEHUQ==2,
+            list(NWEIGHT.y=sum(NWEIGHT.y)),
+            by=c("F_FUELH2O", "F_PRKGPLC1")]
+#      F_FUELH2O F_PRKGPLC1   NWEIGHT.y
+# 1: Natural Gas        Yes 4499487.638
+# 2: Natural Gas         No 1742984.190
+# 3: Electricity        Yes  324008.482
+# 4: Electricity         No  209688.445
+# 5: Propane/LPG        Yes  138626.636
+# 6: Propane/LPG         No  107198.058
+# 7:       Solar        Yes   14528.936
+# 8:       Solar         No   13674.536
+# 9:    Fuel Oil         No    8016.831
+with(DT_RECS_CA[TYPEHUQ==2], 
+     tapply(NWEIGHT.y, list(F_FUELH2O, F_PRKGPLC1), FUN=sum)
+     )
+#                         No        Yes Not Applicable
+# Natural Gas    1742984.190 4499487.64             NA
+# Propane/LPG     107198.058  138626.64             NA
+# Fuel Oil          8016.831         NA             NA
+# Kerosene                NA         NA             NA
+# Electricity     209688.445  324008.48             NA
+# Wood                    NA         NA             NA
+# Solar            13674.536   14528.94             NA
+# Other Fuel              NA         NA             NA
+# Not Applicable          NA         NA             NA
+# propane adds another ~250k, removing elec is -= ~525k
+
 # reset 'No Attached Garage'
 DT_RECS_CA[SIZEOFGARAGE ==-2, SIZEOFGARAGE:=0 ]
 
@@ -83,20 +138,21 @@ DT_RECS_CA[, list(F_SIZEOFGARAGE = unique(F_SIZEOFGARAGE)),
            by=SIZEOFGARAGE]
 
 # how many 'Single-Family Detached' with attached garages by Size of attached garage?
-DT_RECS_CA[ TYPEHUQ==2 ,
+DT_RECS_CA[ TYPEHUQ==2 & (FUELH2O %in% c(1,2)),
             list(nTYPEHUQ = sum(NWEIGHT.y) # number housing units
                  ),
             by=c("SIZEOFGARAGE")
             ][order(SIZEOFGARAGE)]
 #    SIZEOFGARAGE  nTYPEHUQ
-# 1:            0 2081562.1
-# 2:            1  756816.7
-# 3:            2 3545159.5
-# 4:            3  674675.6
+# 1:            0 1850182.2
+# 2:            1  682155.3
+# 3:            2 3311527.9
+# 4:            3  644431.1
 
 # make a simple data.table to plot
 DT_GARAGE_AGE <-
-  DT_RECS_CA[ TYPEHUQ==2, # 'Single-Family Detached' only
+  DT_RECS_CA[ TYPEHUQ==2 & # 'Single-Family Detached' only
+                (FUELH2O %in% c(1,2)), # Natural Gas or Propane/LPG
               list(nTYPEHUQ = sum(NWEIGHT.y), # number
                    YEARMADERANGE = unique(YEARMADERANGE),
                    SIZEOFGARAGE = unique(SIZEOFGARAGE)
@@ -188,14 +244,14 @@ ggplot(data = DT_YRIBBONS, aes(x=YEAREND)) +
   geom_ribbon(aes(ymin=YMIN, ymax=YMAX, fill=rev(SIZEOFGARAGE)), 
               color='black', show.legend = TRUE ) +
   labs(title="Attached Garages in California", # title, axes labels,  caption 
-     subtitle="Single-Family Detached, size of garage (0 = no attached garage)", 
+     subtitle="Single-Family Detached House, Natural Gas or Propane/LPG Water Heater", 
      caption="Source: RECS 2009", 
      y="number of housing units (million)",
      x="year built")  +  
-  scale_y_continuous(breaks=c(0,2.0e6,4.0e6,6.0e6),
-                     labels = c("0","2.0","4.0","6.0"),
-                     limits = c(0,7.5e6)) +
-  guides(fill = guide_legend(title = "parking spaces") )
+  scale_y_continuous(breaks=c(0,1.0e6,2.0e6,3.036,4.0e6,5.0e6,6.0e6),
+                     labels = c("0", "1.0", "2.0", "3.0","4.0", "3.0","6.0"),
+                     limits = c(0,6.5e6)) +
+  guides(fill = guide_legend(title = "size of attached garage\nparking spaces") )
 
 names(DT_nTYPEHUQ_YEAREND)
 
