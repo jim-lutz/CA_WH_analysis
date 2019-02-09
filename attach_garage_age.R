@@ -80,7 +80,7 @@ DT_RECS_CA[ ,
 # how many 'Single-Family Detached' have attached garages?
 DT_RECS_CA[ TYPEHUQ==2,
             list(TYPEHUQ = unique(TYPEHUQ),
-                 nTYPEHUQ = sum(NWEIGHT.y), # number housing units
+                 nhouse = sum(NWEIGHT.y), # number housing units
                 Attached_Garage = unique(F_PRKGPLC1)),
             by=c("PRKGPLC1")
             ]
@@ -139,11 +139,11 @@ DT_RECS_CA[, list(F_SIZEOFGARAGE = unique(F_SIZEOFGARAGE)),
 
 # how many 'Single-Family Detached' with attached garages by Size of attached garage?
 DT_RECS_CA[ TYPEHUQ==2 & (FUELH2O %in% c(1,2)),
-            list(nTYPEHUQ = sum(NWEIGHT.y) # number housing units
+            list(nHOUSE = sum(NWEIGHT.y) # number housing units
                  ),
             by=c("SIZEOFGARAGE")
             ][order(SIZEOFGARAGE)]
-#    SIZEOFGARAGE  nTYPEHUQ
+#    SIZEOFGARAGE    nHOUSE
 # 1:            0 1850182.2
 # 2:            1  682155.3
 # 3:            2 3311527.9
@@ -153,7 +153,7 @@ DT_RECS_CA[ TYPEHUQ==2 & (FUELH2O %in% c(1,2)),
 DT_GARAGE_AGE <-
   DT_RECS_CA[ TYPEHUQ==2 & # 'Single-Family Detached' only
                 (FUELH2O %in% c(1,2)), # Natural Gas or Propane/LPG
-              list(nTYPEHUQ = sum(NWEIGHT.y), # number
+              list(nHOUSE = round(sum(NWEIGHT.y)), # number of houses
                    YEARMADERANGE = unique(YEARMADERANGE),
                    SIZEOFGARAGE = unique(SIZEOFGARAGE)
                    ),
@@ -176,27 +176,34 @@ names(DT_GARAGE_AGE)
 str(DT_GARAGE_AGE)
 DT_GARAGE_AGE
 
+# roundoff nTYPEHUQ
+DT_GARAGE_AGE[ , ]
+
+
 # dcast (long to wide)
 DT_ATTACH_GARAGE <-
 dcast(DT_GARAGE_AGE[, list(YEAREND,
                            SIZEOFGARAGE,
-                           nTYPEHUQ)
+                           nHOUSE)
                     ],
       YEAREND ~ SIZEOFGARAGE, 
-      value.var = c("nTYPEHUQ"),
+      value.var = c("nHOUSE"),
       fill = 0)
-
-# list of values of SIZEOFGARAGE that become column names
-cols.SIZEOFGARAGE <- as.character(sort(unique(DT_GARAGE_AGE$SIZEOFGARAGE)))
-
-# accumulate prior years
-DT_ATTACH_GARAGE[, (cols.SIZEOFGARAGE) := lapply(.SD, cumsum), 
-                 .SDcols=cols.SIZEOFGARAGE]
 
 # cleanup the names
 setnames(DT_ATTACH_GARAGE, 
          old = 2:5,
          new = paste("SIZEOFGARAGE",c(0:3),sep = "_") )
+
+# save data
+fwrite(DT_ATTACH_GARAGE, file = paste0(wd_data,"garagesize_by_year","_",d,"csv") )
+
+# list of values of SIZEOFGARAGE that become column names
+cols.SIZEOFGARAGE <- colnames(DT_ATTACH_GARAGE)[2:5]
+
+# accumulate prior years
+DT_ATTACH_GARAGE[, (cols.SIZEOFGARAGE) := lapply(.SD, cumsum), 
+                 .SDcols=cols.SIZEOFGARAGE]
 
 # ymin and ymax for ribbons
 # Three-or-more-car, ymin = 0, ymax = nTYPEHUQ, Y0:Y1
@@ -249,37 +256,14 @@ ggplot(data = DT_YRIBBONS, aes(x=YEAREND)) +
      y="number of housing units (million)",
      x="year built")  +  
   scale_y_continuous(breaks=c(0,1.0e6,2.0e6,3.036,4.0e6,5.0e6,6.0e6),
-                     labels = c("0", "1.0", "2.0", "3.0","4.0", "3.0","6.0"),
+                     labels = c("0", "1.0", "2.0", "3.0","4.0", "5.0","6.0"),
                      limits = c(0,6.5e6)) +
-  guides(fill = guide_legend(title = "size of attached garage\nparking spaces") )
-
-names(DT_nTYPEHUQ_YEAREND)
-
-# cleanup data for sharing
-DT_nTYPEHUQ_YEAREND <- 
-  DT_nTYPEHUQ_YEAREND[ , list(YEAREND,F_YEARMADERANGE,
-                              `Mobile Home`            = round(TYPEHUQ_1),
-                              `Single-Family Detached` = round(TYPEHUQ_2),
-                              `Single-Family Attached` = round(TYPEHUQ_3),
-                              `Apartment in Building with 2 - 4 Units` = round(TYPEHUQ_4),
-                              `Apartment in Building with 5+ Units` = round(TYPEHUQ_5)
-                              )
-                       ]
-
-#    TYPEHUQ                              F_TYPEHUQ
-# 1:       1                            Mobile Home
-# 2:       2                 Single-Family Detached
-# 3:       3                 Single-Family Attached
-# 4:       4 Apartment in Building with 2 - 4 Units
-# 5:       5    Apartment in Building with 5+ Units
+  guides(fill = guide_legend(title = "size of attached garage\n(parking spaces)") )
 
 
 # save chart
-ggsave(filename = paste0("type_by_year","_",d,".png"), 
+ggsave(filename = paste0("garagesize_by_year","_",d,".png"), 
        path=wd_charts, scale = 1.5) 
-
-# save data
-fwrite(DT_nTYPEHUQ_YEAREND, file = paste0(wd_data,"type_by_year","_",d,"csv") )
 
 
 
